@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Vavoom API Reference</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+:root{
+  --page-bg:#fff;
+  --surface:#f6f8fa;
+  --surface-active:#efeeff;
+  --border:#e3e6ec;
+  --ink:#1a1f36;
+  --text-secondary:#3c4257;
+  --text-muted:#697386;
+  --text-faint:#c6cbd6;
+  --accent:#5851ff;
+  --accent-ink:#4038e0;
+  --code-bg:#1c1f2e;
+  --code-bg2:#22263a;
+  --green:#3ecf8e;
+  --amber:#e0a100;
+  --red:#e5484d;
+  --callout-warn-bg:#fffaf0;
+  --callout-info-bg:#f6f6ff;
+  --callout-danger-bg:#fff5f5;
+}
+[data-theme="dark"]{
+  --page-bg:#0F1319;
+  --surface:#151a22;
+  --surface-active:rgba(207,255,47,.12);
+  --border:#232a35;
+  --ink:#f0f3f7;
+  --text-secondary:#b9c0cc;
+  --text-muted:#7d8695;
+  --text-faint:#4b515c;
+  --accent:#CFFF2F;
+  --accent-ink:#CFFF2F;
+  --callout-warn-bg:rgba(224,161,0,.12);
+  --callout-info-bg:rgba(207,255,47,.08);
+  --callout-danger-bg:rgba(229,72,77,.12);
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+  color:var(--ink);
+  background:var(--page-bg);
+  font-size:15px;
+  line-height:1.6;
+  transition:background .2s ease, color .2s ease;
+}
+code, pre, .mono{font-family:"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;}
+
+.topbar{
+  height:56px;
+  border-bottom:1px solid var(--border);
+  display:flex;
+  align-items:center;
+  padding:0 24px;
+  position:sticky;
+  top:0;
+  background:var(--page-bg);
+  z-index:50;
+  gap:16px;
+}
+.topbar .logo{
+  font-weight:700;
+  font-size:16px;
+  color:var(--ink);
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.topbar .logo .dot{
+  width:9px;height:9px;border-radius:50%;
+  background:var(--accent);
+  display:inline-block;
+}
+.topbar .badge{
+  font-size:12.5px;
+  color:var(--text-muted);
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:5px;
+  padding:3px 9px;
+  font-family:"SF Mono",Menlo,Consolas,monospace;
+}
+.topbar .spacer{flex:1;}
+.topbar .tag{
+  font-size:12.5px;
+  color:var(--text-muted);
+}
+
+/* theme toggle */
+.theme-toggle{
+  appearance:none;border:1px solid var(--border);background:var(--surface);
+  border-radius:999px;padding:3px;cursor:pointer;display:flex;align-items:center;
+  width:52px;height:28px;flex-shrink:0;
+}
+.theme-toggle .ttrack{
+  position:relative;width:100%;height:100%;display:flex;align-items:center;justify-content:space-between;
+  padding:0 4px;
+}
+.theme-toggle .ticon{font-size:11px;line-height:1;opacity:.55;user-select:none;}
+.theme-toggle .tthumb{
+  position:absolute;top:50%;left:2px;
+  width:20px;height:20px;border-radius:50%;
+  background:var(--accent);
+  transform:translate(0,-50%);
+  transition:transform .2s ease, background .2s ease;
+  box-shadow:0 1px 2px rgba(0,0,0,.25);
+}
+[data-theme="dark"] .theme-toggle .tthumb{transform:translate(22px,-50%);}
+
+.layout{
+  display:grid;
+  grid-template-columns:250px 1fr;
+  max-width:1500px;
+  margin:0 auto;
+}
+nav.sidebar{
+  border-right:1px solid var(--border);
+  padding:28px 16px 80px 20px;
+  position:sticky;
+  top:56px;
+  height:calc(100vh - 56px);
+  overflow-y:auto;
+}
+nav.sidebar h6{
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:.06em;
+  color:var(--text-muted);
+  margin:22px 0 6px 10px;
+  font-weight:700;
+}
+nav.sidebar h6:first-child{margin-top:0;}
+nav.sidebar a{
+  display:block;
+  padding:6px 10px;
+  border-radius:6px;
+  color:var(--text-secondary);
+  text-decoration:none;
+  font-size:13.5px;
+  margin-bottom:1px;
+}
+nav.sidebar a:hover{background:var(--surface);color:var(--ink);}
+nav.sidebar a.active{background:var(--surface-active);color:var(--accent-ink);font-weight:600;}
+nav.sidebar a.method-link{
+  padding-left:20px;
+  font-size:12.5px;
+  color:var(--text-muted);
+}
+nav.sidebar a.method-link .m{
+  font-family:"SF Mono",Menlo,Consolas,monospace;
+  font-size:10.5px;
+  font-weight:700;
+  margin-right:6px;
+}
+nav.sidebar a.method-link .m.get{color:#2e7fee;}
+nav.sidebar a.method-link .m.post{color:var(--green);}
+nav.sidebar a.method-link .m.put{color:var(--amber);}
+nav.sidebar a.method-link .m.delete{color:var(--red);}
+
+main{padding:0 40px;min-width:0;}
+
+.page-section{padding:48px 0 8px;border-bottom:1px solid var(--border);}
+.page-section:last-child{border-bottom:none;}
+.page-section h1{font-size:28px;margin:0 0 10px;}
+.page-section h2{font-size:22px;margin:0 0 14px;}
+.page-section > p.lead{color:var(--text-secondary);font-size:15.5px;max-width:720px;}
+.eyebrow{
+  font-size:12px;color:var(--accent-ink);font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;
+}
+
+.op-grid{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 440px;
+  gap:44px;
+  padding:34px 0;
+  border-top:1px solid var(--border);
+  align-items:start;
+}
+.op-grid:first-of-type{border-top:none;}
+.op-left h3{
+  font-size:18px;margin:0 0 4px;
+  display:flex;align-items:center;gap:10px;
+}
+.op-left .route{
+  font-family:"SF Mono",Menlo,Consolas,monospace;
+  font-size:13px;color:var(--text-muted);
+  margin:0 0 14px;
+}
+.pill{
+  font-family:"SF Mono",Menlo,Consolas,monospace;
+  font-size:11px;font-weight:700;
+  padding:2px 7px;border-radius:4px;color:#fff;
+  letter-spacing:.02em;
+}
+.pill.get{background:#2e7fee;}
+.pill.post{background:var(--green);}
+.pill.put{background:var(--amber);}
+.pill.delete{background:var(--red);}
+.op-left p{color:var(--text-secondary);font-size:14.5px;margin:0 0 14px;max-width:640px;}
+.op-right{position:relative;}
+.code-sticky{position:sticky;top:76px;}
+
+table.params{width:100%;border-collapse:collapse;margin:14px 0 6px;}
+table.params th{
+  text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.04em;
+  color:var(--text-muted);padding:6px 0;border-bottom:1px solid var(--border);font-weight:700;
+}
+table.params td{
+  padding:10px 10px 10px 0;border-bottom:1px solid var(--border);vertical-align:top;font-size:13.5px;
+}
+table.params td.pname{font-family:"SF Mono",Menlo,Consolas,monospace;font-size:13px;color:var(--ink);white-space:nowrap;}
+table.params td.ptype{color:var(--text-muted);font-size:12.5px;white-space:nowrap;}
+table.params .req{color:var(--red);font-size:11px;margin-left:5px;}
+table.params .opt{color:var(--text-faint);font-size:11px;margin-left:5px;}
+
+.code-block{
+  background:var(--code-bg);
+  border-radius:10px;
+  overflow:hidden;
+  margin-bottom:16px;
+  box-shadow:0 1px 3px rgba(20,20,40,.15);
+}
+.code-block .cb-head{
+  display:flex;align-items:center;gap:8px;
+  padding:9px 14px;
+  background:var(--code-bg2);
+  font-size:11.5px;color:#9299b8;
+  font-family:"SF Mono",Menlo,Consolas,monospace;
+  border-bottom:1px solid #2c3049;
+}
+.code-block .cb-head .status{
+  margin-left:auto;font-weight:700;
+}
+.code-block .cb-head .status.s2xx{color:var(--green);}
+.code-block .cb-head .status.s4xx{color:#ff9166;}
+.code-block pre{
+  margin:0;padding:14px;color:#e3e6f3;font-size:12.5px;line-height:1.65;
+  overflow-x:auto;white-space:pre;
+}
+.code-block .c-key{color:#88c0ff;}
+.code-block .c-str{color:#8ce09e;}
+.code-block .c-num{color:#f4b464;}
+.code-block .c-bool{color:#f4b464;}
+.code-block .c-null{color:#8a90ab;}
+.code-block .c-comment{color:#6b7191;}
+.code-block .c-flag{color:#c792ea;}
+
+.callout{
+  border-left:3px solid var(--amber);
+  background:var(--callout-warn-bg);
+  padding:12px 16px;
+  border-radius:0 6px 6px 0;
+  font-size:13.5px;
+  color:var(--text-secondary);
+  margin:16px 0;
+  max-width:680px;
+}
+.callout.info{border-left-color:var(--accent);background:var(--callout-info-bg);}
+.callout.danger{border-left-color:var(--red);background:var(--callout-danger-bg);}
+.callout b{color:var(--ink);}
+
+ul.plain{margin:8px 0;padding-left:20px;font-size:14px;color:var(--text-secondary);}
+ul.plain li{margin-bottom:6px;}
+table.simple{width:100%;border-collapse:collapse;margin:16px 0;font-size:13.5px;max-width:760px;}
+table.simple th{text-align:left;background:var(--surface);padding:8px 10px;font-size:12px;text-transform:uppercase;color:var(--text-muted);letter-spacing:.03em;}
+table.simple td{padding:9px 10px;border-bottom:1px solid var(--border);color:var(--text-secondary);}
+table.simple td code, table.simple td.mono{font-family:"SF Mono",Menlo,Consolas,monospace;font-size:12.5px;color:var(--ink);}
+.footer-note{color:var(--text-muted);font-size:12.5px;padding:30px 0 60px;}
+a.inline{color:var(--accent-ink);}
+@media (max-width:980px){
+  .layout{grid-template-columns:1fr;}
+  nav.sidebar{display:none;}
+  .op-grid{grid-template-columns:1fr;}
+  .code-sticky{position:static;}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo"><span class="dot"></span>Vavoom API Reference</div>
+  <span class="badge">https://api.vavoom.io</span>
+  <div class="spacer"></div>
+  <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode" aria-pressed="false" title="Toggle dark mode">
+    <span class="ttrack">
+      <span class="ticon">☀</span>
+      <span class="ticon">☾</span>
+      <span class="tthumb"></span>
+    </span>
+  </button>
+</div>
+
+<div class="layout">
+
+<nav class="sidebar" id="sidebar">
+  <h6>Getting Started</h6>
+  <a href="#introduction">Introduction</a>
+  <a href="#authentication">Authentication</a>
+  <a href="#errors">Errors</a>
+  <a href="#pagination">Pagination &amp; sorting</a>
+  <a href="#idempotency">Idempotency</a>
+
+  <h6>Company &amp; Brand</h6>
+  <a href="#brand">Brand</a>
+  <a class="method-link" href="#brand-list"><span class="m get">GET</span>List brands</a>
+  <a class="method-link" href="#brand-retrieve"><span class="m get">GET</span>Retrieve a brand</a>
+  <a class="method-link" href="#brand-create"><span class="m post">POST</span>Create a brand</a>
+  <a class="method-link" href="#brand-update"><span class="m put">PUT</span>Update a brand</a>
+  <a class="method-link" href="#brand-delete"><span class="m delete">DEL</span>Delete a brand</a>
+
+  <h6>Locations &amp; Hardware</h6>
+  <a href="#location">Location</a>
+  <a class="method-link" href="#location-list"><span class="m get">GET</span>List locations</a>
+  <a class="method-link" href="#location-retrieve"><span class="m get">GET</span>Retrieve a location</a>
+  <a class="method-link" href="#location-orders"><span class="m get">GET</span>List a location's orders</a>
+  <a href="#brainbox">Brain Box</a>
+  <a class="method-link" href="#brainbox-create"><span class="m post">POST</span>Register a brain box</a>
+  <a class="method-link" href="#brainbox-publickey"><span class="m get">GET</span>Get device public key</a>
+
+  <h6>Orders</h6>
+  <a href="#order">Order</a>
+  <a class="method-link" href="#order-list"><span class="m get">GET</span>List orders</a>
+  <a class="method-link" href="#order-retrieve"><span class="m get">GET</span>Retrieve an order</a>
+
+  <h6>Customers</h6>
+  <a href="#customer">Customer</a>
+  <a class="method-link" href="#customer-create"><span class="m post">POST</span>Create a customer</a>
+
+  <h6>Reference</h6>
+  <a href="#best-practices">Integration best practices</a>
+</nav>
+
+<main>
+
+<!-- ============ INTRODUCTION ============ -->
+<section class="page-section" id="introduction">
+  <div class="eyebrow">Overview</div>
+  <h1>Vavoom API</h1>
+  <p class="lead">The Vavoom API lets you read and manage drive-thru operations data — brands, locations, hardware, orders, and customers. It's built on ASP.NET Core (.NET 6) and speaks JSON over REST.</p>
+  <table class="simple">
+    <tr><th>Base URL</th><td class="mono">https://api.vavoom.io</td></tr>
+    <tr><th>Format</th><td>JSON over REST</td></tr>
+    <tr><th>Auth</th><td>OAuth 2.0 / OpenID Connect (bearer tokens)</td></tr>
+    <tr><th>Versioning</th><td>None — one unversioned API surface.</td></tr>
+    <tr><th>Rate limits</th><td>None currently enforced. See <a class="inline" href="#best-practices">Integration best practices</a>.</td></tr>
+  </table>
+  <div class="callout info">
+    <b>This document covers the resources available for integration.</b> A full interactive reference is available once your integration is onboarded — talk to your Vavoom contact for access.
+  </div>
+</section>
+
+<!-- ============ AUTHENTICATION ============ -->
+<section class="page-section" id="authentication">
+  <div class="eyebrow">Getting started</div>
+  <h2>Authentication</h2>
+  <p class="lead">Vavoom authenticates every request with an OAuth 2.0 bearer token — there is no separate API-key model. As part of onboarding, Vavoom issues your integration its own OAuth client using the <code>authorization_code</code> grant with PKCE. You get a token by completing that flow, then send it as an <code>Authorization</code> header on every call.</p>
+</section>
+
+<div class="op-grid">
+  <div class="op-left">
+    <h3>Token endpoint</h3>
+    <p class="route">POST /connect/token</p>
+    <p>Exchange an authorization code for an access token using the client credentials Vavoom provisions for your integration.</p>
+    <table class="params">
+      <tr><th>Field</th><th></th></tr>
+      <tr><td class="pname">grant_type</td><td class="ptype">string — <code>authorization_code</code></td></tr>
+      <tr><td class="pname">client_id</td><td class="ptype">string — issued to your integration</td></tr>
+      <tr><td class="pname">client_secret</td><td class="ptype">string — issued to your integration</td></tr>
+      <tr><td class="pname">code</td><td class="ptype">string — from the authorize redirect</td></tr>
+      <tr><td class="pname">code_verifier</td><td class="ptype">string — PKCE verifier</td></tr>
+    </table>
+    <table class="simple">
+      <tr><th>Endpoint</th><th>URL</th></tr>
+      <tr><td>Authorize</td><td class="mono">https://api.vavoom.io/connect/authorize</td></tr>
+      <tr><td>Token</td><td class="mono">https://api.vavoom.io/connect/token</td></tr>
+      <tr><td>Scope</td><td class="mono">Vavoom</td></tr>
+    </table>
+  </div>
+  <div class="op-right"><div class="code-sticky">
+    <div class="code-block">
+      <div class="cb-head">Request &nbsp;·&nbsp; curl</div>
+      <pre><span class="c-flag">curl</span> https://api.vavoom.io/connect/token \
+  -d grant_type=authorization_code \
+  -d client_id=<span class="c-str">"{YOUR_CLIENT_ID}"</span> \
+  -d client_secret=<span class="c-str">"{YOUR_CLIENT_SECRET}"</span> \
+  -d code=<span class="c-str">"{AUTH_CODE}"</span> \
+  -d code_verifier=<span class="c-str">"{PKCE_VERIFIER}"</span> \
+  -d redirect_uri=<span class="c-str">"{YOUR_REDIRECT_URI}"</span></pre>
+    </div>
+    <div class="code-block">
+      <div class="cb-head">Response <span class="status s2xx">200 OK</span></div>
+      <pre>{
+  <span class="c-key">"access_token"</span>: <span class="c-str">"eyJhbGciOiJSUzI1NiIs..."</span>,
+  <span class="c-key">"token_type"</span>: <span class="c-str">"Bearer"</span>,
+  <span class="c-key">"expires_in"</span>: <span class="c-num">36000</span>
+}</pre>
+    </div>
+    <div class="code-block">
+      <div class="cb-head">Using the token</div>
+      <pre><span class="c-flag">curl</span> https://api.vavoom.io/api/app/brand \
+  -H <span class="c-str">"Authorization: Bearer {ACCESS_TOKEN}"</span></pre>
+    </div>
+  </div></div>
+</div>
+
+<!-- ============ ERRORS ============ -->
+<section class="page-section" id="errors">
+  <div class="eyebrow">Getting started</div>
+  <h2>Errors</h2>
+  <p class="lead">Vavoom uses conventional HTTP status codes: <code>2xx</code> for success, <code>4xx</code> for a problem with the request, <code>5xx</code> for a problem on Vavoom's end.</p>
+</section>
+
+<div class="op-grid">
+  <div class="op-left">
+    <h3>The error object</h3>
+    <table class="params">
+      <tr><th>Attribute</th><th></th></tr>
+      <tr><td class="pname">error.code</td><td class="ptype">string, nullable</td></tr>
+      <tr><td class="pname">error.message</td><td class="ptype">string, nullable</td></tr>
+      <tr><td class="pname">error.details</td><td class="ptype">string, nullable</td></tr>
+      <tr><td class="pname">error.data</td><td class="ptype">object, nullable</td></tr>
+      <tr><td class="pname">error.validationErrors</td><td class="ptype">array, nullable — present on validation failures</td></tr>
+      <tr><td class="pname">&nbsp;&nbsp;↳ message</td><td class="ptype">string, nullable</td></tr>
+      <tr><td class="pname">&nbsp;&nbsp;↳ members</td><td class="ptype">string[] — the field name(s) that failed</td></tr>
+    </table>
+    <table class="simple">
+      <tr><th>Status</th><th>Meaning</th></tr>
+      <tr><td class="mono">400</td><td>Bad request — usually a validation error. Check <code>validationErrors</code>.</td></tr>
+      <tr><td class="mono">401</td><td>Missing or invalid bearer token.</td></tr>
+      <tr><td class="mono">403</td><td>Token is valid but the caller isn't authorized for this location/resource.</td></tr>
+      <tr><td class="mono">404</td><td>No resource with that id.</td></tr>
+      <tr><td class="mono">500</td><td>Server-side error. Safe to retry with backoff.</td></tr>
+    </table>
+  </div>
+  <div class="op-right"><div class="code-sticky">
+    <div class="code-block">
+      <div class="cb-head">Response <span class="status s4xx">400 Bad Request</span></div>
+      <pre>{
+  <span class="c-key">"error"</span>: {
+    <span class="c-key">"code"</span>: <span class="c-null">null</span>,
+    <span class="c-key">"message"</span>: <span class="c-str">"Your request is not valid!"</span>,
+    <span class="c-key">"details"</span>: <span class="c-null">null</span>,
+    <span class="c-key">"data"</span>: {},
+    <span class="c-key">"validationErrors"</span>: [
+      {
+        <span class="c-key">"message"</span>: <span class="c-str">"'Name' should not be empty."</span>,
+        <span class="c-key">"members"</span>: [<span class="c-str">"name"</span>]
+      }
+    ]
+  }
+}</pre>
+    </div>
+  </div></div>
+</div>
+
+<!-- ============ PAGINATION ============ -->
+<section class="page-section" id="pagination">
+  <div class="eyebrow">Getting started</div>
+  <h2>Pagination &amp; sorting</h2>
+  <p class="lead">Every list endpoint (<code>GET /api/app/{resource}</code>) accepts the same three optional query parameters and returns the same wrapper shape.</p>
+</section>
+
+<div class="op-grid">
+  <div class="op-left">
+    <h3>List query parameters</h3>
+    <table class="params">
+      <tr><th>Parameter</th><th>Type</th></tr>
+      <tr><td class="pname">SkipCount<span class="opt">optional</span></td><td class="ptype">integer — offset into the result set</td></tr>
+      <tr><td class="pname">MaxResultCount<span class="opt">optional</span></td><td class="ptype">integer — page size</td></tr>
+      <tr><td class="pname">Sorting<span class="opt">optional</span></td><td class="ptype">string — e.g. <code>name desc</code></td></tr>
+    </table>
+    <h3 style="margin-top:26px;">Response wrapper</h3>
+    <table class="params">
+      <tr><td class="pname">items</td><td class="ptype">array, nullable</td></tr>
+      <tr><td class="pname">totalCount</td><td class="ptype">integer (int64)</td></tr>
+    </table>
+  </div>
+  <div class="op-right"><div class="code-sticky">
+    <div class="code-block">
+      <div class="cb-head">Request &nbsp;·&nbsp; curl</div>
+      <pre><span class="c-flag">curl</span> -G https://api.vavoom.io/api/app/brand \
+  -H <span class="c-str">"Authorization: Bearer {ACCESS_TOKEN}"</span> \
+  -d SkipCount=0 \
+  -d MaxResultCount=20 \
+  -d Sorting=<span class="c-str">"name asc"</span></pre>
+    </div>
+    <div class="code-block">
+      <div class="cb-head">Response <span class="status s2xx">200 OK</span></div>
+      <pre>{
+  <span class="c-key">"items"</span>: [ { <span class="c-comment">"...BrandDto"</span> }, { <span class="c-comment">"..."</span> } ],
+  <span class="c-key">"totalCount"</span>: <span class="c-num">47</span>
+}</pre>
+    </div>
+  </div></div>
+</div>
+
+<!-- ============ IDEMPOTENCY ============ -->
+<section class="page-section" id="idempotency">
+  <div class="eyebrow">Getting started</div>
+  <h2>Idempotency</h2>
+  <p class="lead">Idempotency keys are not currently supported — there is no <code>Idempotency-Key</code> header and no server-side request deduplication. A retried <code>POST</code> or <code>PUT</code> is processed as a new request.</p>
+  <div class="callout info">
+    If your integration retries on timeout or a 5xx response, design your writes to be safe to repeat — for example, check for an existing record before creating one. We recommend planning for this in your integration rather than assuming retries are deduplicated.
+  </div>
+</section>
+
+<!-- ============ BRAND ============ -->
+<section class="page-section" id="brand">
+  <div class="eyebrow">Company &amp; Brand</div>
+  <h2>The Brand object</h2>
+  <p class="lead">A brand belongs to a company and owns one or more locations.</p>
+  <table class="params">
+    <tr><th>Attribute</th><th></th></tr>
+    <tr><td class="pname">id</td><td class="ptype">string (uuid)</td></tr>
+    <tr><td class="pname">name</td><td class="ptype">string, nullable</td></tr>
+    <tr><td class="pname">aka</td><td class="ptype">string, nullable — "also known as"</td></tr>
+    <tr><td class="pname">logo</td><td class="ptype">string, nullable — logo URL</td></tr>
+    <tr><td class="pname">type</td><td class="ptype">integer enum</td></tr>
+    <tr><td class="pname">status</td><td class="ptype">integer enum</td></tr>
+    <tr><td class="pname">statusReason</td><td class="ptype">string, nullable</td></tr>
+    <tr><td class="pname">website</td><td class="ptype">string, nullable</td></tr>
+    <tr><td class="pname">contact</td><td class="ptype">object, nullable</td></tr>
+    <tr><td class="pname">extras</td><td class="ptype">object, nullable</td></tr>
+  </table>
+  <div class="callout">
+    <code>type</code> and <code>status</code> are integer enums. Contact your Vavoom integration contact for the current value mapping.
+  </div>
+</section>
+
+<div class="op-grid" id="brand-list">
+  <div class="op-left">
+    <h3><span class="pill get">GET</span> List brands</h3>
+    <p class="route">/api/app/brand</p>
+    <p>Returns brands in pages. See <a class="inline" href="#pagination">Pagination &amp; sorting</a> for query params.</p>
+  </div>
+  <div class="op-right"><div class="code-sticky">
+    <div class="code-block">
+      <div class="cb-head">Request &nbsp;·&nbsp; curl</div>
+      <pre><span class="c-flag">curl</span> -G https://api.vavoom.io/api/app/brand \
+  -H <span class="c-str">"Authorization: Bearer {ACCESS_TOKEN}"</span></pre>
+    </div>
+    <div class="code-block">
+      <div class="cb-head">Response <span class="status s2xx">200 OK</span></div>
+      <pre>{
+  <span class="c-key">"items"</span>: [
+    {
+      <span class="c-key">"id"</span>: <span class="c-str">"1a2b3c4d-...-000000000001"</span>,
+      <span class="c-key">"name"</span>: <span class="c-str">"Acme Coffee Co."</span>,
+      <span class="c-key">"aka"</span>: <span class="c-null">null</span>,
+      <span class="c-key">"logo"</span>: <span class="c-str">"https://.../acme-logo.png"</span>,
+      <span class="c-key">"type"</span>: <span class="c-num">0</span>,
+      <span class="c-key">"status"</span>: <span class="c-num">1</span>,
+      <span class="c-key">"statusReason"</span>: <span class="c-null">null</span>,
+      <span class="c-key">"website"</span>: <span class="c-str">"https://acmecoffee.example.com"</span>,
+      <span class="c-key">"contact"</span>: {},
+      <span class="c-key">"extras"</span>: {}
+    }
+  ],
+  <span class="c-key">"totalCount"</span>: <span class="c-num">1</span>
+}</pre>
+    </div>
+  </div></div>
+</div>
+
+<div class="op-grid" id="brand-retrieve">
+  <div class="op-left">
+    <h3><span class="pill get">GET</span> Retrieve a brand</h3>
+    <p class="route">/api/app/brand/{id}</p>
+    <p>Also see <span class="mono" style="font-family:'SF Mono',monospace;font-size:13px;">GET /api/app/brand/{id}/locations</span> for a brand's locations.</p>
+  </div>
+  <div class="op-right"><div class="code-sticky">
+    <div class="code-block">
+      <div class="cb-head">Request &nbsp;·&nbsp; curl</div>
+      <pre><span class="c-flag">curl</span> https://api.vavoom.io/api/app/brand/1a2b3c4d-...-1 \
+  -H <span class="c-str">"Authorization: Bearer {ACCESS_TOKEN}"</span></pre>
+    </div>
+    <div class="code-block">
+      <div class="cb-head">Response <span class="status s2xx">200 OK</span></div>
+      <pre>{
+  <span class="c-key">"id"</span>: <span class="c-str">"1a2b3c4d-...-000000000001"</span>,
+  <span class="c-key">"name"</span>: <span class="c-str">"Acme Coffee Co."</span>,
+  <span class="c-key">"type"</span>: <span class="c-num">0</span>,
+  <span class="c-key">"status"</span>: <span class="c-num">1</span>
+  <span class="c-comment">// ...remaining fields as above</span>
+}</pre>
+    </div>
+  </div></div>
+</div>
+
+<div class="op-grid" id="brand-create">
+  <div class="op-left">
+    <h3><span class="pill post">POST</span> Create a brand</h3>
+    <p class="route">/api/app/brand</p>
+    <table class="params">
+      <tr><th>Parameter</th><th></th></tr>
+      <tr><td class="pname">name<span class="opt">optional</span></td><td class="ptype">string</td></tr>
+      <tr><td class="pname">aka<span class="opt">optional</span></td><td class="ptype">string</td></tr>
+      <tr><td class="pname">logo<span class="opt">optional</span></td><td class="ptype">string</td></tr>
+      <tr><td class="pname">type<span class="req">required</span></td><td class="ptype">integer enum</td></tr>
+      <tr><td class="pname">status<span class="req">required</span></td><td class="ptype">integer enum</td></tr>
+      <tr><td class="pname">statusReason<span class="opt">optional</span></td><td class="ptype">string</td></tr>
+      <tr><td class="pname">website<span class="opt">optional</span></td><td class="ptype">string</td></tr>
+      <tr><td class="pname">contact<span class="opt">optional</span></td><td class="ptype">object</td></tr>
+      <tr><td class="pname">extras<span class="opt">optional</span></td><td class="ptype">object</td></tr>
+    </table>
+  </div>
+  <div class="op-right"><div class="code-sticky">
+    <div class="code-block">
+      <div class="cb-head">Request &nbsp;·&nbsp; curl</div>
+      <pre><span class="c-flag">curl</span> -X POST https://api.vavoom.io/api/app/brand \
+  -H <span class="c-str">"Authorization: Bearer {ACCESS_TOKEN}"</span> \
+  -H <span class="c-str">"Content-Type: application/json"</span> \
+  -d <span class="c-str">'{
+    "name": "Acme Coffee Co.",
+    "type": 0,
+    "status": 1,
+    "website": "https://acmecoffee.example.com"
+  }'</span></pre>
+    </div>
+    <div class="code-block">
+      <div class="cb-head">Response <span class="status s2xx">200 OK</span></div>
+      <pre>{
+  <span class="c-key">"id"</span>: <span class="c-str">"1a2b3c4d-...-000000000001"</span>,
+  <span class="c-key">"name"</span>: <span class="c-str">"Acme Coffee Co."</span>,
+  <span class="c-key">"type"</span>: <span class="c-num">0</span>,
+  <span class="c-key">"status"</span>: <span class="c-num">1</span>
+}</pre>
+    </div>
+    <div class="code-block">
+      <div class="cb-head">Response <span class="status s4xx">400 Bad Request</span></div>
+      <pre>{
+  <span class="c-key">"error"</span>: {
+    <span class="c-key">"validationErrors"</span>: [
+      { <span class="c-key">"message"</span>: <span class="c-str">"'Type' is required."</span>, <span class="c-key">"members"</span>: [<span class="c-str">"type"</span>] }
+    ]
+  }
+}</pre>
+    </div>
+  </div></div>
+</div>
+
+<div class="op-grid" id="brand-update">
+  <div class="op-left">
+    <h3><span class="pill put">PUT</span> Update a brand</h3>
+    <p class="route">/api/app/brand/{id}</p>
+    <p>Same body shape as <a class="inline" href="#brand-create">Create a brand</a>.</p>
+  </div>
+  <div class="op-right"><div class="code-sticky">
+    <div class="code-block">
+      <div class="cb-head">Request &nbsp;·&nbsp; curl</div>
+      <pre><span class="c-flag">curl</span> -X PUT https://api.vavoom.io/api/app/brand/1a2b3c4d-...-1 \
+  -H <span class="c-str">"Authorization: Bearer {ACCESS_TOKEN}"</span> \
+  -H <span class="c-str">"Content-Type: application/json"</span> \
+  -d <span class="c-str">'{ "name": "Acme Coffee Co.", "type": 0, "status": 1 }'</span></pre>
+    </div>
+  </div></div>
+</div>
+
+<div class="op-grid" id="brand-delete">
+  <div class="op-left">
+    <h3><span class="pill delete">DEL</span> Delete a brand</h3>
+    <p class="route">/api/app/brand/{id}</p>
+    <p>No request body. No content on success.</p>
+  </div>
+  <div class="op-right"><div class="code-sticky">
+    <div class="code-block">
+      <div class="cb-head">Request &nbsp;·&nbsp; curl</div>
+      <pre><span class="c-flag">curl</span> -X DELETE https://api.vavoom.io/api/app/brand/1a2b3c4d-...-1 \
+  -H <span class="c-str">"Authorization: Bearer {ACCESS_TOKEN}"</span></pre>
+    </div>
+  </div></div>
+</div>
+
+<!-- ============ LOCATION ============ -->
+<section class="page-section" id="location">
+  <div class="eyebrow">Locations &amp; Hardware</div>
+  <h2>The Location object</h2>
+  <p class="lead">A single store — the unit everything else (hardware, orders, customers) is scoped under.</p>
+  <table class="params">
+    <tr><th>Attribute</th><th></th></tr>
+    <tr><td class="pname">id</td><td class="ptype">string (uuid)</td></tr>
+    <tr><td class="pname">name, phone, email</td><td class="ptype">string, nullable</td></tr>
+    <tr><td class="pname">address, city, state, zip, country</td><td class="ptype">string, nullable</td></tr>
+    <tr><td class="pname">brandName, franchiseeName</td><td class="ptype">string, nullable</td></tr>
+    <tr><td class="pname">timezone</td><td class="ptype">string, nullable</td></tr>
+    <tr><td class="pname">latitude, longitude</td><td class="ptype">number (double), nullable</td></tr>
+    <tr><td class="pname">status</td><td class="ptype">string, nullable</td></tr>
+    <tr><td class="pname">statusNote, externalId, desc</td><td class="ptype">string, nullable</td></tr>
+    <tr><td class="pname">metrics, weather, analytics, extras</td><td class="ptype">object, nullable</td></tr>
+    <tr><td class="pname">brainBoxes</td><td class="ptype">array of BrainBoxDto</td></tr>
+  </table>
+  <div class="callout info">
+    <b>Additional operations</b> beyond CRUD are available under <code>/api/app/location/{id}/...</code>, including metrics, cameras, lanes, hardware, and order history. Ask your Vavoom integration contact which of these are enabled for your integration.
+  </div>
+</section>
+
+<div class="op-grid" id="location-list">
+  <div class="op-left">
+    <h3><span class="pill get">GET</span> List locations</h3>
+    <p class="route">/api/app/location</p>
+    <p>Standard paged list — see <a class="inline" href="#pagination">Pagination &amp; sorting</a>.</p>
+  </div>
+  <div class="op-right"><div class="code-sticky">
+    <div class="code-block">
+      <div class="cb-head">Request &nbsp;·&nbsp; curl</div>
+      <pre><span class="c-flag">curl</span> -G https://api.vavoom.io/api/app/location \
+  -H <span class="c-str">"Authorization: Bearer {ACCESS_TOKEN}"</span> \
+  -d MaxResultCount=10</pre>
+    </div>
+  </div></div>
+</div>
+
+<div class="op-grid" id="location-retrieve">
+  <div class="op-left">
+    <h3><span class="pill get">GET</span> Retrieve a location</h3>
+    <p class="route">/api/app/location/{id}</p>
+  </div>
+  <div class="op-right"><div class="code-sticky">
+    <div class="code-block">
+      <div class="cb-head">Response <span class="status s2xx">200 OK</span></div>
+      <pre>{
+  <span class="c-key">"id"</span>: <span class="c-str">"3f0a...-loc1"</span>,
+  <span class="c-key">"name"</span>: <span class="c-str">"Acme Coffee – Sample Location"</span>,
+  <span class="c-key">"brandName"</span>: <span class="c-str">"Acme Coffee Co."</span>,
+  <span class="c-key">"timezone"</span>: <span class="c-str">"America/Chicago"</span>,
+  <span class="c-key">"status"</span>: <span class="c-str">"Active"</span>,
+  <span class="c-key">"brainBoxes"</span>: [ { <span class="c-comment">"...BrainBoxDto"</span> } ]
+}</pre>
+    </div>
+  </div></div>
+</div>
+
+<div class="op-grid" id="location-orders">
+  <div class="op-left">
+    <h3><span class="pill get">GET</span> List a location's orders</h3>
+    <p class="route">/api/app/location/{id}/orders</p>
+    <table class="params">
+      <tr><th>Parameter</th><th></th></tr>
+      <tr><td class="pname">PageSize<span class="opt">optional</span></td><td class="ptype">integer</td></tr>
+      <tr><td class="pname">PageNo<span class="opt">optional</span></td><td class="ptype">integer</td></tr>
+      <tr><td class="pname">orderDate<span class="opt">optional</span></td><td class="ptype">string (date-time)</td></tr>
+    </table>
+  </div>
+  <div class="op-right"><div class="code-sticky">
+    <div class="code-block">
+      <div class="cb-head">Request &nbsp;·&nbsp; curl</div>
+      <pre><span class="c-flag">curl</span> -G https://api.vavoom.io/api/app/location/3f0a...-loc1/orders \
+  -H <span class="c-str">"Authorization: Bearer {ACCESS_TOKEN}"</span> \
+  -d orderDate=<span class="c-str">2026-08-19</span></pre>
+    </div>
+  </div></div>
+</div>
+
+<!-- ============ BRAIN BOX ============ -->
+<section class="page-section" id="brainbox">
+  <h2>The Brain Box object</h2>
+  <p class="lead">Brain Box is the in-store compute device the ranker and cameras run on.</p>
+  <table class="params">
+    <tr><th>Attribute (read — BrainBoxDto)</th><th></th></tr>
+    <tr><td class="pname">id</td><td class="ptype">string (uuid)</td></tr>
+    <tr><td class="pname">manufacturer, assignedId, username, url, name, os</td><td class="ptype">string, nullable</td></tr>
+    <tr><td class="pname">info, extras</td><td class="ptype">object, nullable</td></tr>
+  </table>
+  <div class="callout">
+    <b>Create/update also accepts a <code>password</code> field</b>, which the read response never returns. This is expected — device credentials are write-only and don't round-trip.
+  </div>
+</section>
+
+<div class="op-grid" id="brainbox-create">
+  <div class="op-left">
+    <h3><span class="pill post">POST</span> Register a brain box</h3>
+    <p class="route">/api/app/brain-box</p>
+    <table class="params">
+      <tr><th>Parameter</th><th></th></tr>
+      <tr><td class="pname">locationId<span class="req">required</span></td><td class="ptype">string (uuid)</td></tr>
+      <tr><td class="pname">manufacturer, assignedId, username, url, name, os<span class="opt">optional</span></td><td class="ptype">string</td></tr>
+      <tr><td class="pname">password<span class="opt">optional</span></td><td class="ptype">string — write-only, never returned on read</td></tr>
+      <tr><td class="pname">info, extras<span class="opt">optional</span></td><td class="ptype">object</td></tr>
+    </table>
+  </div>
+  <div class="op-right"><div class="code-sticky">
+    <div class="code-block">
+      <div class="cb-head">Request &nbsp;·&nbsp; curl</div>
+      <pre><span class="c-flag">curl</span> -X POST https://api.vavoom.io/api/app/brain-box \
+  -H <span class="c-str">"Authorization: Bearer {ACCESS_TOKEN}"</span> \
+  -H <span class="c-str">"Content-Type: application/json"</span> \
+  -d <span class="c-str">'{
+    "locationId": "3f0a...-loc1",
+    "name": "BB-Sample-01",
+    "manufacturer": "Sample Manufacturer",
+    "os": "Ubuntu 22.04"
+  }'</span></pre>
+    </div>
+  </div></div>
+</div>
+
+<div class="op-grid" id="brainbox-publickey">
+  <div class="op-left">
+    <h3><span class="pill get">GET</span> Get device public key</h3>
+    <p class="route">/api/app/brain-box/{id}/publickey</p>
+    <p>Returns the device's public key as a plain string.</p>
+  </div>
+  <div class="op-right"><div class="code-sticky">
+    <div class="code-block">
+      <div class="cb-head">Response <span class="status s2xx">200 OK</span></div>
+      <pre><span class="c-str">"ssh-ed25519 AAAAC3NzaC1lZDI1NTE5..."</span></pre>
+    </div>
+  </div></div>
+</div>
+
+<!-- ============ ORDER ============ -->
+<section class="page-section" id="order">
+  <h2>The Order object</h2>
+  <p class="lead">Read this section's note before assuming you can create orders directly.</p>
+  <table class="params">
+    <tr><th>Attribute</th><th></th></tr>
+    <tr><td class="pname">id</td><td class="ptype">string (uuid)</td></tr>
+    <tr><td class="pname">total, subtotal</td><td class="ptype">number (double)</td></tr>
+    <tr><td class="pname">tax, tip, discount</td><td class="ptype">number (double), nullable</td></tr>
+    <tr><td class="pname">orderDate</td><td class="ptype">string (date-time)</td></tr>
+    <tr><td class="pname">orderReady, deliveredDate, estimatedDeliveryDate</td><td class="ptype">string (date-time), nullable</td></tr>
+    <tr><td class="pname">refOrderId, comment</td><td class="ptype">string, nullable</td></tr>
+    <tr><td class="pname">customerId, locationId</td><td class="ptype">string (uuid), nullable</td></tr>
+    <tr><td class="pname">status</td><td class="ptype">integer enum</td></tr>
+    <tr><td class="pname">items</td><td class="ptype">array of LineItem</td></tr>
+    <tr><td class="pname">extras</td><td class="ptype">object, nullable</td></tr>
+  </table>
+  <p style="font-weight:600;margin-top:22px;">LineItem</p>
+  <table class="params">
+    <tr><td class="pname">name, externalId</td><td class="ptype">string, nullable</td></tr>
+    <tr><td class="pname">itemId</td><td class="ptype">string (uuid)</td></tr>
+    <tr><td class="pname">total</td><td class="ptype">number (double)</td></tr>
+    <tr><td class="pname">qty</td><td class="ptype">integer</td></tr>
+    <tr><td class="pname">relatedItems</td><td class="ptype">array of LineItem — modifiers/add-ons nest here</td></tr>
+    <tr><td class="pname">extras</td><td class="ptype">object, nullable</td></tr>
+  </table>
+  <div class="callout info">
+    <b>Orders are written through Vavoom's order-ingestion pipeline, not a direct create call.</b> If your integration needs to write orders, talk to your Vavoom integration contact about enabling write access for your use case.
+  </div>
+</section>
+
+<div class="op-grid" id="order-list">
+  <div class="op-left">
+    <h3><span class="pill get">GET</span> List orders</h3>
+    <p class="route">/api/app/order</p>
+    <p>Standard paged list.</p>
+  </div>
+  <div class="op-right"><div class="code-sticky">
+    <div class="code-block">
+      <div class="cb-head">Request &nbsp;·&nbsp; curl</div>
+      <pre><span class="c-flag">curl</span> -G https://api.vavoom.io/api/app/order \
+  -H <span class="c-str">"Authorization: Bearer {ACCESS_TOKEN}"</span> \
+  -d MaxResultCount=20</pre>
+    </div>
+  </div></div>
+</div>
+
+<div class="op-grid" id="order-retrieve">
+  <div class="op-left">
+    <h3><span class="pill get">GET</span> Retrieve an order</h3>
+    <p class="route">/api/app/order/{id}</p>
+  </div>
+  <div class="op-right"><div class="code-sticky">
+    <div class="code-block">
+      <div class="cb-head">Response <span class="status s2xx">200 OK</span></div>
+      <pre>{
+  <span class="c-key">"id"</span>: <span class="c-str">"9c2b...-ord1"</span>,
+  <span class="c-key">"total"</span>: <span class="c-num">14.75</span>,
+  <span class="c-key">"subtotal"</span>: <span class="c-num">13.5</span>,
+  <span class="c-key">"tax"</span>: <span class="c-num">1.25</span>,
+  <span class="c-key">"orderDate"</span>: <span class="c-str">"2026-08-19T14:32:00Z"</span>,
+  <span class="c-key">"status"</span>: <span class="c-num">3</span>,
+  <span class="c-key">"items"</span>: [
+    {
+      <span class="c-key">"name"</span>: <span class="c-str">"Medium Coffee"</span>,
+      <span class="c-key">"itemId"</span>: <span class="c-str">"7a1...-item1"</span>,
+      <span class="c-key">"total"</span>: <span class="c-num">5.25</span>,
+      <span class="c-key">"qty"</span>: <span class="c-num">1</span>,
+      <span class="c-key">"relatedItems"</span>: []
+    }
+  ]
+}</pre>
+    </div>
+  </div></div>
+</div>
+
+<!-- ============ CUSTOMER ============ -->
+<section class="page-section" id="customer">
+  <h2>The Customer object</h2>
+  <p class="lead"><code>name</code> is the only required field on create.</p>
+  <table class="params">
+    <tr><th>Attribute</th><th></th></tr>
+    <tr><td class="pname">id</td><td class="ptype">string (uuid)</td></tr>
+    <tr><td class="pname">name<span class="req">required on create</span></td><td class="ptype">string, nullable on read</td></tr>
+    <tr><td class="pname">phone, email</td><td class="ptype">string, nullable</td></tr>
+    <tr><td class="pname">address, city, state, zip, country</td><td class="ptype">string, nullable</td></tr>
+    <tr><td class="pname">gender</td><td class="ptype">integer enum</td></tr>
+    <tr><td class="pname">image</td><td class="ptype">string, nullable</td></tr>
+    <tr><td class="pname">analytics, preferences</td><td class="ptype">object, nullable</td></tr>
+  </table>
+</section>
+
+<div class="op-grid" id="customer-create">
+  <div class="op-left">
+    <h3><span class="pill post">POST</span> Create a customer</h3>
+    <p class="route">/api/app/customer</p>
+    <table class="params">
+      <tr><th>Parameter</th><th></th></tr>
+      <tr><td class="pname">name<span class="req">required</span></td><td class="ptype">string</td></tr>
+      <tr><td class="pname">phone, email<span class="opt">optional</span></td><td class="ptype">string</td></tr>
+      <tr><td class="pname">address, city, state, zip, country<span class="opt">optional</span></td><td class="ptype">string</td></tr>
+      <tr><td class="pname">gender<span class="req">required</span></td><td class="ptype">integer enum</td></tr>
+      <tr><td class="pname">image<span class="opt">optional</span></td><td class="ptype">string</td></tr>
+      <tr><td class="pname">analytics, preferences<span class="opt">optional</span></td><td class="ptype">object</td></tr>
+    </table>
+  </div>
+  <div class="op-right"><div class="code-sticky">
+    <div class="code-block">
+      <div class="cb-head">Request &nbsp;·&nbsp; curl</div>
+      <pre><span class="c-flag">curl</span> -X POST https://api.vavoom.io/api/app/customer \
+  -H <span class="c-str">"Authorization: Bearer {ACCESS_TOKEN}"</span> \
+  -H <span class="c-str">"Content-Type: application/json"</span> \
+  -d <span class="c-str">'{ "name": "Sample Customer", "gender": 0 }'</span></pre>
+    </div>
+    <div class="code-block">
+      <div class="cb-head">Response <span class="status s2xx">200 OK</span></div>
+      <pre>{
+  <span class="c-key">"id"</span>: <span class="c-str">"4d5e...-cust1"</span>,
+  <span class="c-key">"name"</span>: <span class="c-str">"Sample Customer"</span>,
+  <span class="c-key">"gender"</span>: <span class="c-num">0</span>
+}</pre>
+    </div>
+  </div></div>
+</div>
+
+<!-- ============ BEST PRACTICES ============ -->
+<section class="page-section" id="best-practices">
+  <div class="eyebrow">Reference</div>
+  <h2>Integration best practices</h2>
+  <p class="lead">A few things to design for up front.</p>
+  <ul class="plain">
+    <li><b>Build in your own retry backoff.</b> There's no rate limiting on the API today, but a well-behaved client should still back off on repeated failures rather than retry immediately in a loop.</li>
+    <li><b>Design writes to be safely repeatable.</b> There's no idempotency-key support yet — see <a class="inline" href="#idempotency">Idempotency</a>.</li>
+    <li><b>Use <code>authorization_code</code> with PKCE</b> for your OAuth flow, and keep your client secret server-side only.</li>
+    <li><b>Treat enum fields as opaque integers</b> until you've confirmed the value mapping with your Vavoom integration contact.</li>
+  </ul>
+</section>
+
+<p class="footer-note">Vavoom API Reference. For questions or access beyond what's documented here, contact your Vavoom integration contact.</p>
+
+</main>
+</div>
+
+<script>
+(function(){
+  var root = document.documentElement;
+  var stored = null;
+  try { stored = localStorage.getItem('vavoom-docs-theme'); } catch(e) {}
+  var theme = stored === 'dark' ? 'dark' : 'light';
+  root.setAttribute('data-theme', theme);
+
+  function initToggle(){
+    var btn = document.getElementById('themeToggle');
+    if(!btn) return;
+    btn.setAttribute('aria-pressed', theme === 'dark' ? 'true' : 'false');
+    btn.addEventListener('click', function(){
+      theme = theme === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', theme);
+      btn.setAttribute('aria-pressed', theme === 'dark' ? 'true' : 'false');
+      try { localStorage.setItem('vavoom-docs-theme', theme); } catch(e) {}
+    });
+  }
+
+  var links = Array.from(document.querySelectorAll('nav.sidebar a'));
+  var targets = links.map(function(a){ return document.getElementById(a.getAttribute('href').slice(1)); }).filter(Boolean);
+  function onScroll(){
+    var current = null;
+    for(var i=0;i<targets.length;i++){
+      var el = targets[i];
+      var r = el.getBoundingClientRect();
+      if(r.top <= 120) current = el.id;
+    }
+    links.forEach(function(a){ a.classList.toggle('active', a.getAttribute('href') === '#' + current); });
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', function(){ initToggle(); onScroll(); });
+  } else {
+    initToggle(); onScroll();
+  }
+  document.addEventListener('scroll', onScroll, {passive:true});
+})();
+</script>
+
+</body>
+</html>
